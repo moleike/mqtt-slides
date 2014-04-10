@@ -193,6 +193,40 @@
                         <h2>Message format</h2>
                         <p>Fixed header (2 bytes) + Variable header + Payload</p>
                     </section>
+                    <section>
+                        <h2>Fixed header format</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>bit</th>
+                                    <th>7</th>
+                                    <th>6</th>
+                                    <th>5</th>
+
+                                    <th>4</th>
+                                    <th>3</th>
+                                    <th>2</th>
+                                    <th>1</th>
+                                    <th>0</th>
+                                </tr>
+
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>byte 1</td>
+                                    <td colspan="4">Message Type</td>
+                                    <td>DUP flag</td>
+                                    <td colspan="2">QoS level</td>
+
+                                    <td>RETAIN</td>
+                                </tr>
+                                <tr>
+                                    <td>byte 2</td>
+                                    <td colspan="8">Remaining Length</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
                     <section id="topic">
                         <h2>Topics/Subscriptions</h2>
                         <ul class="indent">
@@ -240,6 +274,8 @@
                             </ul>
                         </p>
                         <small><a href="http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#qos-flows">Quality of Service levels and flows</a></small>
+                        <aside class"notes">
+                        </aside>
                     </section>
                 </section>
 
@@ -252,6 +288,9 @@
                         <p>An umbrella project, providing an open source MQTT v3.1/v3.1.1 broker, client libraries,<br> language bindings, and client utilities.</p>
                         <p><small>Seems the Mosquitto project is moving to Eclipse, discussed <a href="#/paho">next</a></small></p>
                         <small><a href="http://mosquitto.org">mosquitto.org</small></a>
+                        <aside class="notes">
+                            There are at least a C and Python implmentation, and a C++ binding
+                        </aside>
                     </section>
                     <section>
                         <h2>Mosquitto</h2>
