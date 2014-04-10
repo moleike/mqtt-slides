@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>MQTT - Lightweight Messaging Protocol</title>
+
+		<meta name="description" content="MQTT, a lightweight messaging protocol for the Internet of Things">
+		<meta name="author" content="Alexandre Moreno">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="reveal.js/css/reveal.min.css">
+		<link rel="stylesheet" href="reveal.js/css/theme/default.css" id="theme">
+        <link rel="stylesheet" href="local.css">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="reveal.js/lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>MQTT</h1>
+					<h3>An introduction</h3>
+					<p>
+						<small><a href="http://about.me/alexandremoreno">Alexandre Moreno</a> | <a href="http://www.adlinktech.com">ADLINK Technology, Inc.</a></small>
+					</p>
+				</section>
+
+                <section id="definition">
+                    <h2>MQ Telemetry Transport</h2>
+                    <blockquote>
+                        MQTT is a machine-to-machine (M2M)/Internet of Things connectivity protocol. 
+                        It was designed as an extremely lightweight publish/subscribe messaging transport. It is useful for connections with remote 
+                        locations where a small code footprint is required and/or network bandwidth is at a premium. 
+                    </blockquote>
+                    <!-- <blockquote>
+                        For example, it has been used in 
+                        sensors communicating to a broker via satellite link. It is also ideal for mobile applications because of its small size, 
+                        low power usage, minimised data packets, and efficient distribution of information to one or many receivers
+                    </blockquote>-->
+                    <small><a href="http://mqtt.org">http://mqtt.org</a></small>
+                </section>
+                    
+				<section id="buzz">
+                    <h1>buzzwords</h1> 
+                    <p>
+                        <a href="http://en.wikipedia.org/wiki/Internet_of_Things">Internet of Things</a><br>
+                        <a href="http://en.wikipedia.org/wiki/Machine_to_machine">Machine to Machine</a><br>
+                        <a href="http://en.wikipedia.org/wiki/Smart_grid">Smart Grid</a><br>
+                    </p>
+					<aside class="notes">
+						Useful background reading to understand the use-cases
+					</aside>
+				</section>
+
+                <section id="use-case">
+                    <h2>Purpose of MQTT?</h2>
+                    <ul>
+                        <li>Fill the gap between the numerous devices and applications that can produce data and the wider world of data consumers</li>
+                        <li>Good fit for simple push messaging scenarios</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>At a glance...</h2>
+                        <ul>
+                            <li class="fragment"><a href="#/protocol">Application-layer protocol</a></li>
+                            <li class="fragment">Runs atop TCP</li>
+                            <li class="fragment">Binary wire-protocol</li>
+                            <li class="fragment">No message queue albeit the name</li>
+                            <li class="fragment"><a href="#/pubsub">Publish/subscribe pattern</a></li>
+                            <li class="fragment">Designed for resource-constrained devices</li>
+                            <li class="fragment">UTF-8 encoded strings (since V3.1)</li>
+                            <li class="fragment">Payload-agnostic</li>
+                            <li class="fragment">Keep-Alive timer</li>
+                            <li class="fragment"><a href="#/qos">QoS</a></li>
+                        </ul>
+                </section>
+
+                <section>
+                    <h2>Scalability</h2>
+                    <blockquote>
+                        &ldquo;a single 1u-form-factor appliance can handle up to 1 million sensors and 13 million concurrent messages&rdquo;
+                    </blockquote>
+                    <small><a href="http://www.informationweek.com/software/information-management/ibm-crunches-internet-of-things-data/240153834">link to article</a></small>
+                    <aside class="notes">
+                        many ideas: mqtt can use websocket as a transport, so essentially you could have a web application performing sensor readouts.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Interoperability</h2>
+                        MQTT Interop Testing Day
+                        <blockquote>
+                        The goal is to have as many different MQTT client and server implementations participate in interoperability testing to
+                        validate the implementation of the upcoming OASIS MQTT standard.
+                        </blockquote>
+                        <small><a href="https://wiki.eclipse.org/Paho/MQTT_Interop_Testing_Day">https://wiki.eclipse.org/Paho/MQTT_Interop_Testing_Day</a></small>
+                </section>
+
+                <section id="pubsub">
+                    <section>
+                        <h2>Background</h2>
+                        <h4>Publish/Subscribe pattern</h4>
+                    </section>
+                    <section>
+                        <h2>Publish/Subscribe Messaging Model</h2>
+                            <ul>
+                                <li class="fragment">Clients subscribe to <em>topics</em> (SUBSCRIBE)</li>
+                                <li class="fragment">Messages are published to a specific topic name (PUBLISH)</li>
+                                <li class="fragment">A <a href="#/broker">broker</a> server handles the routing of messages</li>
+                            </ul>
+                        <aside class="notes">
+                        Analogy: anonymous bulletin boards
+                        </aside>
+                    </section>
+                    <section>
+                        <h2>Publish/Subscribe Messaging Model</h2>
+                        <ul>
+                            <li>Pros</li>
+                                <ul>
+                                    <li>Greater network scalability and a more dynamic network topology</li>
+                                    <li>Decoupling of applications</li>
+                                </ul>
+                            <li>Cons</li>
+                                <ul>
+                                    <li>Same security vulnerabilities as Client/Server model</li>
+                                </ul>
+                        </ul>
+                    </section>
+                    <section id="broker">
+                        <h2>Message broker</h2>
+                        <ul>
+                            <li class="fragment"><em>Authenticates</em> clients</li> 
+                            <li class="fragment"><em>Validates</em>, <em>transforms</em> and <em>routes</em> messages</li>
+                            <li class="fragment">Performs <em>topic</em>-based message routing</li> 
+                            <li class="fragment"><em>Caches</em> messages for delivery at a later time<br>e.g. Will messages, RETAIN flag</li> 
+                            <li class="fragment"><a href="http://mqtt.org/wiki/doku.php/bridge_protocol"><em>Bridges</em></a>: brokers can be connected together</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <section id="protocol">
+                        <h1>The protocol</h1>
+                    </section>
+                    <section id="types">
+                        <h2>Message types</h2>
+					<pre><code>
+                        var MESSAGE_TYPE = {
+                            CONNECT: 1, 
+                            CONNACK: 2, 
+                            PUBLISH: 3,
+                            PUBACK: 4,
+                            PUBREC: 5, 
+                            PUBREL: 6,
+                            PUBCOMP: 7,
+                            SUBSCRIBE: 8,
+                            SUBACK: 9,
+                            UNSUBSCRIBE: 10,
+                            UNSUBACK: 11,
+                            PINGREQ: 12,
+                            PINGRESP: 13,
+                            DISCONNECT: 14
+                        };
+					</code></pre>
+                    </section>
+                    <section>
+                        <h2>port numbers</h2>
+                        <p>TCP/IP port <strong>1883</strong> for MQTT.<br>
+                        Port <strong>8883</strong> for MQTT over SSL.</p>
+                    </section>
+                    <section id="format">
+                        <h2>Message format</h2>
+                        <p>Fixed header (2 bytes) + Variable header + Payload</p>
+                    </section>
+                    <section id="topic">
+                        <h2>Topics/Subscriptions</h2>
+                        <ul class="indent">
+                            <li>Hierarchical structure of topics</li>
+                                <ul>
+                                    <li>e.g. <em>sensors/temperature</em></li>
+                                </ul>
+                            <li>wildcard pattern matching for subscriptions</li>
+                                <ul>
+                                    <li>multi-level with &lsquo;#&rsquo; 
+                                        <ul>
+                                            <li>e.g. <em>sensors/#</em> matches both <em>sensors/foo</em> and <em>sensors/foo/bar</em></li>
+                                            <li><em>#</em> matches all topics
+                                        </ul>
+                                    <li>single-level with &lsquo;+&rsquo;
+                                        <ul>
+                                            <li>e.g <em>sensors/+</em> matches <em>sensors/foo</em> and <br><em>sensors/bar</em>, but not <em>sensors/foo/bar</em></li>
+                                        </ul>
+                                </ul>
+                        </ul>
+                        <aside class="notes">
+                        The hierarchical structure, gives you a topic tree, ressembling a file system
+                        </aside>
+                    </section>
+                    <section id="flags">
+                        <h2>Flags</h2>
+                    </section>
+                    <section id="qos">
+                        <h2>QoS</h2>
+                        <p>
+                            The Quality of Service used to deliver a message
+                            <ul class="indent">
+                                <li>0: Best effort 
+                                    <ul>
+                                        <li>PUBLISH</li>
+                                    </ul>
+                                <li>1: At least once
+                                    <ul>
+                                        <li>PUBLISH + PUBACK</li>
+                                    </ul>
+                                <li>2: Exactly once</li>
+                                    <ul>
+                                        <li>PUBLISH + PUBREC + PUBREL + PUBCOMP</li>
+                                    </ul>
+                            </ul>
+                        </p>
+                        <small><a href="http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#qos-flows">Quality of Service levels and flows</a></small>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Implementations</h1>
+                    </section>
+                    <section id="mosquitto">
+                        <h2>Mosquitto</h2>
+                        <p>An umbrella project, providing an open source MQTT v3.1/v3.1.1 broker, client libraries,<br> language bindings, and client utilities.</p>
+                        <p><small>Seems the Mosquitto project is moving to Eclipse, discussed <a href="#/paho">next</a></small></p>
+                        <small><a href="http://mosquitto.org">mosquitto.org</small></a>
+                    </section>
+                    <section>
+                        <h2>Mosquitto</h2>
+                        <h4>Python client</h4>
+                        <pre><code>
+#!/usr/bin/env python
+import mosquitto
+
+def on_message(mosq, obj, msg):
+    print("lights at "+msg.topic+" are "+msg.payload)
+
+client = mosquitto.Mosquitto()
+client.connect("localhost")
+client.subscribe("switches/+/status")
+client.on_message = on_message
+
+while client.loop() == mosquitto.MOSQ_ERR_SUCCESS:
+    pass
+                        </code></pre>
+                        <small>A simple example showing how to subscribe to a topic and define a function to receive the messages.</small>
+                        <aside class="notes">
+                            No client id is provided, so the mosquitto module will generate a random id, and reduce the chance of having an id collision on the broker
+                            Note that we are blocking; We could also use loop_start, which will handle the mosquitto connection into a separate thread.
+                        </aside>
+                    </section>
+                    <section id="paho">
+                        <h2>Eclipse Paho</h2>
+                        <p>
+                            Project providing open source implementations of C, C++, Java, JavaScript, 
+                            Lua and Python client libraries, plus a client view plugin for Eclipse IDE.
+                        </p>
+                        <small><a href="http://www.eclipse.org/paho">http://www.eclipse.org/paho</a></small>
+                        <aside class="notes">
+                            Python client is the same as Mosquitto, just different license
+                        </aside>
+                    </section>
+                    <section>
+                        <h2>Eclipse Paho</h2>
+                        <h4>JavaScript MQTT client</h4>
+                        <pre><code data-trim>
+client = new Messaging.Client( "127.0.0.1", 80, 'clientId' );
+
+client.onMessageArrived = function( msg ) {
+  console.log( "lights at " + msg.destinationName +
+               " are " + msg.payloadString );
+  client.disconnect(); 
+};
+
+client.connect({
+  onSuccess:function() {
+    client.subscribe( "switches/+/status" );
+  }
+});
+                        </code></pre>
+                        <small>Browser-based library that uses WebSockets to connect to an MQTT server.</small>
+                        <p>To use MQTT over WebSocket, you'll need that server supports the WebSocket protocol, e.g. lighttpd with mod_websocket</p>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Any projects making use of MQTT?</h2>
+                        <p></p>
+					</section>
+					<section>
+						<h2>Facebook messenger</h2>
+                        <p>chat sessions, where users can join and leave a conversation, fit well with the publisher-subscriber model</p>
+                        <small><a href="https://www.facebook.com/notes/facebook-engineering/under-the-hood-rebuilding-facebook-for-ios/10151036091753920">Under the hood: Rebuilding Facebook for iOS</a></small>
+					</section>
+					<section>
+						<h2>Smart Lab</h2>
+						<p>Monitoring experiments at the University of Southampton’s chemistry lab.</p>
+					</section>
+					<section>
+						<h2>Heart pacemakers</h2>
+						<p>Send cardio data to doctors remotely monitoring at home patients</p>
+					</section>
+				</section>
+
+                <section>
+                    <section>
+                        <h2>Other messaging protocols</h2>
+                    </section>
+                    <section>
+                        <h2>AMQP</h2>
+                    </section>
+                    <section>
+                        <h2>XMPP</h2>
+                    </section>
+                </section>
+                <section>
+                    <h2>請問有其他問題嗎?</h2>
+                </section>
+                <section>
+                    <h1>謝謝</h1>
+                </section>
+
+			</div>
+
+		</div>
+
+		<script src="reveal.js/lib/js/head.min.js"></script>
+		<script src="reveal.js/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
