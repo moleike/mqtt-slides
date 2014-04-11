@@ -293,6 +293,50 @@
                         </aside>
                     </section>
                     <section>
+                        <h2>Examples</h2>
+                    </section>
+                    <section>
+                        <h2>Mosquitto</h2>
+                        <h4>C client</h4>
+                        <pre><code>
+#include &lt;stdio.h>
+#include &lt;err.h>
+#include &lt;mosquitto.h>
+
+void on_message(struct mosquitto *m, void *user_data, const struct mosquitto_message *msg)
+{
+    fprintf(stderr, "lights at %s are %s\n", msg->topic, (char*)msg->payload);
+}
+
+int main(int argc, char **argv)
+{
+    struct mosquitto *client;
+    int ret;
+    
+    mosquitto_lib_init();
+
+    client = mosquitto_new("client-id", true, NULL);
+    if (!client)
+        err(1, "mosquitto failed");
+
+    ret = mosquitto_connect(client, "127.0.0.1", 1883, 60);
+    if (ret != MOSQ_ERR_SUCCESS)
+        err(1, "mosquitto failed");
+
+    ret = mosquitto_subscribe(client, NULL, "switches/+/status", 0);
+    if (ret != MOSQ_ERR_SUCCESS)
+        err(1, "mosquitto failed");
+
+    mosquitto_message_callback_set(client, on_message);
+
+    while (MOSQ_ERR_SUCCESS 
+        == mosquitto_loop(client, -1, 1));
+
+    return 0;
+}
+                        </code></pre>
+                    </section>
+                    <section>
                         <h2>Mosquitto</h2>
                         <h4>Python client</h4>
                         <pre><code>
