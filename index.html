@@ -15,15 +15,21 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 		<link rel="stylesheet" href="reveal.js/css/reveal.min.css">
-		<link rel="stylesheet" href="reveal.js/css/theme/default.css" id="theme">
+		<link rel="stylesheet" href="reveal.js/css/theme/night.css" id="theme">
         <link rel="stylesheet" href="local.css">
 
 		<!-- For syntax highlighting -->
 		<link rel="stylesheet" href="reveal.js/lib/css/zenburn.css">
 
-		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <!-- If the query includes 'print-pdf', include the PDF print sheet -->
 		<script>
-			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'reveal.js/css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
 		</script>
 
 		<!--[if lt IE 9]>
@@ -41,7 +47,7 @@
 					<h1>MQTT</h1>
 					<h3>An introduction</h3>
 					<p>
-						<small><a href="http://about.me/alexandremoreno">Alexandre Moreno</a> | <a href="http://www.adlinktech.com">ADLINK Technology, Inc.</a></small>
+						<small><a href="http://about.me/alexandremoreno">Alexandre Moreno</a></small>
 					</p>
 				</section>
 
